@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "complex_translator"
+name = "complex-translator"
 version = "0.1.0"
 description = "An advanced multilingual neural machine translation package with custom WordPiece subword tokenization."
 readme = "README.md"
