@@ -1,4 +1,4 @@
-advanced_complex_ai_translator/
+complex-translator/
 │
 ├── src/
 │   └── complex_translator/
