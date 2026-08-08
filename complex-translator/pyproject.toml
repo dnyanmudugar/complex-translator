@@ -28,3 +28,4 @@ complex-translate = "run:main"
 
 [project.urls]
 "Homepage" = "https://github.com"
+"Bug Tracker" = "https://github.com/issues"
