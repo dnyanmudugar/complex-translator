@@ -13,17 +13,14 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
-
     - uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-
-    - name: Install dependencies and run tests
+    - name: Install dependencies, run tests, and build
       run: |
         python -m pip install --upgrade pip
         python -m pip install build setuptools wheel pytest
-        # Installs from the root directory where pyproject.toml is located
-        python -m pip install . 
+        python -m pip install .
         python -m pytest
 
   deploy:
@@ -41,9 +38,8 @@ jobs:
     - name: Install build tools and compile package
       run: |
         python -m pip install --upgrade pip
-        # 🚀 Installs build as a global command line tool
-        pipx install build
-        python -m pip install setuptools wheel
-        python -m build --no-isolation
+        python -m pip install build setuptools wheel
+        python -m build --no-isolation  # 🚀 MUST be inside this exact block!
+
     - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
