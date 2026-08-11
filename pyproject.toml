@@ -26,4 +26,5 @@ pythonpath = ["."]
 [project.urls]
 Homepage = "https://github.com"
 Issues = "https://github.com/issues"
+
 Repository = "https://github.com.git"
