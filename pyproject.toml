@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61.0", "wheel"] # <-- Install these packages!
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "complex-translator"

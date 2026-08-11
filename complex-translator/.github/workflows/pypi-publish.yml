@@ -50,9 +50,16 @@ jobs:
           python -m pip install build setuptools wheel
 
       # Optional: If your project dependencies are needed for --no-isolation
-      - name: Install Project Dependencies
+      - name: Install build dependencies and build
         run: |
-          if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
+          python -m pip install --upgrade pip
+          # 1. Install the build CLI tool
+          python -m pip install build
+          # 2. MANUALLY install whatever is in your pyproject.toml [build-system] requires
+          # For example, if you use hatchling, setuptools, or flit:
+          python -m pip install setuptools wheel 
+          # 3. Run the build
+          python -m build --no-isolation
 
       # This will now succeed because the 'build' package exists on the runner
       - name: Build Python Package
