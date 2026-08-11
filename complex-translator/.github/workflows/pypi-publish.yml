@@ -50,6 +50,11 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
+    - name: Install build tools & dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # Added setuptools-scm to ensure dynamic version extraction works smoothly
+        python -m pip install build setuptools wheel setuptools-scm pytest pytest-custom-exit-code
 
     - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
