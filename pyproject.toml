@@ -12,10 +12,10 @@ authors = [
     {name = "Dnyan Mudugar", email = "dnyan.mudugar@yahoo.com"},
 ]
 dependencies = [
-    transformers>=4.40.0
-    torch>=2.2.0
-    pandas>=2.2.0
-    pytest>=7.0.0
+    "transformers",
+    "torch",
+    "pandas",
+    "pytest",
 
 ]
 
