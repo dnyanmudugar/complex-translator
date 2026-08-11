@@ -24,4 +24,4 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["complex_translator"]
+packages = ["src/complex_translator"]
