@@ -48,9 +48,10 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install build hatchling
 
-    - name: Build package distributions
-      working-directory: ./complex-translator
-      run: python -m build --no-isolation
+        - name: Build package
+          # Update this to match the exact path to your project folder
+          working-directory: ./complex-translator 
+          run: python -m build
 
     - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
