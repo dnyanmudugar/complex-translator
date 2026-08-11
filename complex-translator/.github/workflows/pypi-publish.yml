@@ -13,13 +13,12 @@ jobs:
         echo "=== Root Directory Content ==="
         ls -R
 
-
-  # --- 2. DEPLOY JOB ---
-  deploy:
-    runs-on: ubuntu-latest
-    needs: test
-    permissions:
-      id-token: write # Required for PyPI Trusted Publishing
+    # --- 2. DEPLOY JOB ---
+    deploy:
+      runs-on: ubuntu-latest
+      needs: test
+      permissions:
+        id-token: write # Required for PyPI Trusted Publishing
 
     steps:
     - name: Checkout source code
@@ -36,12 +35,13 @@ jobs:
         python -m pip install build hatchling
 
     - name: Build package distributions
-      # Forces the build engine to run directly next to pyproject.toml
+      # This forces the build engine to look inside your subfolder
       working-directory: ./complex-translator
       run: python -m build --no-isolation
 
     - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        # Directs the publisher to the dist/ folder that was generated inside your subfolder
+        # Tells the publisher to grab the files built inside the subfolder
         packages-dir: complex-translator/dist/
+
