@@ -1,0 +1,7 @@
+transformers
+torch
+pandas
+pytest
+
+[dev]
+pytest>=7.0

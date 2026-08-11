@@ -1,0 +1,16 @@
+Metadata-Version: 2.4
+Name: complex-translator
+Version: 0.1.1
+Summary: A complex translator package
+Author-email: Dnyan Mudugar <dnyan.mudugar@yahoo.com>
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: transformers
+Requires-Dist: torch
+Requires-Dist: pandas
+Requires-Dist: pytest
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+
+# complex-translator
+This python module allows you to translate text to another language using neural network. It does not include module named "googletrans" package. It uses CSV file format as well as model trainings and tokenizer.

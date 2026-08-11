@@ -1,0 +1,7 @@
+README.md
+pyproject.toml
+complex_translator.egg-info/PKG-INFO
+complex_translator.egg-info/SOURCES.txt
+complex_translator.egg-info/dependency_links.txt
+complex_translator.egg-info/requires.txt
+complex_translator.egg-info/top_level.txt
