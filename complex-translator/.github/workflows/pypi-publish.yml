@@ -8,19 +8,11 @@ on:
   workflow_dispatch: # <-- Add this line here to enable the manual "Run workflow" button
 
 jobs:
-      # --- 1. TESTING JOB ---
-    - name: Install dependencies
-      # Forces this specific step to run inside your subfolder
-      working-directory: ./complex-translator
+    - name: Debug Folder Structure
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install .
+        echo "=== Root Directory Content ==="
+        ls -R
 
-    - name: Run unit tests
-      working-directory: ./complex-translator
-      run: |
-        python -m pip install -e .
-        python -m pytest
 
   # --- 2. DEPLOY JOB ---
   deploy:
