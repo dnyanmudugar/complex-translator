@@ -3,28 +3,23 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "your_project_name"
+name = "complex-translator"
 version = "0.1.0"
-description = "A neural machine translation project"
+description = "A complex translator package"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
+authors = [
+    {name = "Dnyan Mudugar", email = "dnyan.mudugar@yahoo.com"},
+]
 dependencies = [
-    "torch",
-    "pandas",
-    "pytest",
-    "sentencepiece",
-    "transformers",
-    "scikit-learn",
+    transformers>=4.40.0
+    torch>=2.2.0
+    pandas>=2.2.0
+    pytest>=7.0.0
+
 ]
 
-[tool.setuptools]
-packages = ["complex_translator"]
-
-[tool.pytest.ini_options]
-pythonpath = ["."]
-
-[project.urls]
-Homepage = "https://github.com"
-Issues = "https://github.com/issues"
-
-Repository = "https://github.com.git"
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
