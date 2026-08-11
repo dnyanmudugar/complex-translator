@@ -23,5 +23,8 @@ dev = [
     "pytest>=7.0",
 ]
 
+[tool.setuptools.packages.find]
+where = ["src"]  # Or ["src"] if your code lives inside a src directory
+
 [tool.hatch.build.targets.wheel]
 packages = ["complex_translator"]
