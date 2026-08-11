@@ -16,10 +16,12 @@ dependencies = [
     "torch",
     "pandas",
     "pytest",
-
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/complex_translator"]
