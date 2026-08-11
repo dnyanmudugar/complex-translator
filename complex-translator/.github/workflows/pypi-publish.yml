@@ -21,11 +21,11 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install build hatchling
         python -m pip install -e .
-        - name: Run unit tests
-          working-directory: ./complex-translator
-          # The flag prevents exit code 5 when no tests exist
-          run: |
-            python -m pytest --suppress-no-test-exit-code
+          - name: Run unit tests
+            working-directory: ./complex-translator
+            # The flag prevents exit code 5 when no tests exist
+            run: |
+              python -m pytest --suppress-no-test-exit-code
 
   deploy:
     runs-on: ubuntu-latest
