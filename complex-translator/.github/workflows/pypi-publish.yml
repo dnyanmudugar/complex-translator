@@ -19,6 +19,7 @@ jobs:
     - name: Run unit tests
       working-directory: ./complex-translator
       run: |
+        python -m pip install -e .
         python -m pytest
 
   # --- 2. DEPLOY JOB ---
