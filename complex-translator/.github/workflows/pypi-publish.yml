@@ -1,0 +1,48 @@
+name: CI & Publish to PyPI
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - '[0-9]*'
+  workflow_dispatch: # <-- Add this line here to enable the manual "Run workflow" button
+
+jobs:
+      - name: Install dependencies
+      run: |
+          # Move into the subfolder where your source/tests live
+          cd complex-translator
+          python -m pytest
+
+  # 2. Build and publish to PyPI (Only runs if tests pass)
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      id-token: write # Required for PyPI Trusted Publishing
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install build tools
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install build hatchling
+
+    - name: Build package distributions
+      run: |
+        # Move into the subfolder before triggering the build tool
+        cd complex-translator
+        python -m build --no-isolation
+
+    - name: Publish package to PyPI
+      # The publish step will automatically find the dist/ folder inside complex-translator
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: complex-translator/dist/
