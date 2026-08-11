@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "your_project_name"
+version = "0.1.0"
+description = "A neural machine translation project"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "torch",
+    "pandas",
+    "pytest",
+    "sentencepiece",
+    "transformers",
+    "scikit-learn",
+]
+
+[tool.setuptools]
+packages = ["complex_translator"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[project.urls]
+Homepage = "https://github.com"
+Issues = "https://github.com/issues"
+Repository = "https://github.com.git"
