@@ -1,60 +1,50 @@
-name: CI & Publish to PyPI
+name: Publish Python Package to PyPI
 
 on:
-  push:
-    branches: [main, master]
-    tags: ['v*', '[0-9]*']
-  workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
-  test:
+  build:
+    name: Build distribution packages
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install build hatchling
-        python -m pip install -e .
-        - name: Run unit tests
-          working-directory: ./complex-translator
-          # The flag prevents exit code 5 when no tests exist
-          run: |
-            python -m pytest --suppress-no-test-exit-code
+    - name: Checkout source code
+      uses: actions/checkout@v4
 
-  deploy:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install build tool
+      run: python -m pip install build --user
+
+    - name: Build binary wheels and source tarball
+      run: python -m build
+
+    - name: Store distribution artifacts temporarily
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
+  publish-to-pypi:
+    name: Upload package to PyPI via Trusted Publishing
+    needs: build
     runs-on: ubuntu-latest
-    needs: test
+    environment:
+      name: pypi
+      url: https://pypi.org
     permissions:
-      id-token: write # Required for PyPI Trusted Publishing
+      id-token: write  # Mandatory security permission for tokenless OIDC publishing
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Download distribution artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-
-      # THIS STEP IS CRITICAL: It installs the runner build tools
-      - name: Install Build Tools
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install build setuptools wheel
-
-      # Optional: If your project dependencies are needed for --no-isolation
-      - name: Install Project Dependencies
-        run: |
-          if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
-
-      # This will now succeed because the 'build' package exists on the runner
-      - name: Build Python Package
-        run: python -m build --no-isolation
-
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
