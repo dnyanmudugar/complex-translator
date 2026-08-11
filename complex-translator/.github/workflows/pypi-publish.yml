@@ -10,9 +10,13 @@ on:
 jobs:
       - name: Install dependencies
       run: |
-          # Move into the subfolder where your source/tests live
-          cd complex-translator
-          python -m pytest
+        python -m pip install --upgrade pip
+        # The && forces pip to execute inside the folder
+        cd complex-translator && python -m pip install .
+
+      - name: Run unit tests
+        run: |
+          cd complex-translator && python -m pytest
 
   # 2. Build and publish to PyPI (Only runs if tests pass)
   deploy:
@@ -36,13 +40,11 @@ jobs:
         python -m pip install build hatchling
 
     - name: Build package distributions
-      run: |
-        # Move into the subfolder before triggering the build tool
-        cd complex-translator
-        python -m build --no-isolation
+      # The && forces the build tool to run exactly where pyproject.toml is
+      run: cd complex-translator && python -m build --no-isolation
 
     - name: Publish package to PyPI
-      # The publish step will automatically find the dist/ folder inside complex-translator
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
+        # Point the publisher to the dist/ folder inside the subfolder
         packages-dir: complex-translator/dist/
