@@ -2,7 +2,7 @@ name: Production Backend Pipeline
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
     tags: ['v*', '[0-9]*']
   workflow_dispatch: # Allows manual triggering from the UI or CLI
 
