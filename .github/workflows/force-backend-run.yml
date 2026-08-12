@@ -8,6 +8,10 @@ on:
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
+    
+    # 🔐 Match this to your PyPI Environment name (usually 'pypi', 'release', or leave blank if not used)
+    environment: pypi 
+    
     permissions:
       id-token: write    # Required for Trusted Publishing OIDC token
       contents: read     # Required to clone your codebase
