@@ -1,32 +1,36 @@
-name: Production Backend Pipeline
+name: Force New Backend Run
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "**" ] 
   workflow_dispatch:
 
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
-    environment: pypi
+    
+    # 🔐 Match this to your PyPI Environment name (usually 'pypi', 'release', or leave blank if not used)
+    environment: pypi 
+    
     permissions:
-      id-token: write
-      contents: read
+      id-token: write    # Required for Trusted Publishing OIDC token
+      contents: read     # Required to clone your codebase
 
     steps:
-      - name: Checkout Source Code
+      - name: 1. Clone Codebase
         uses: actions/checkout@v4
 
-      - name: Initialize Production Python
+      - name: 2. Set Up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Build Package Artifacts
+      - name: 3. Dynamic Directory Mapping and Build
         run: |
-          cd ./src/complex-translator
-          
-          # Inject configurations dynamically
+          REAL_PATH=$(find . -maxdepth 3 -type d -name "complex-translator" -print -quit)
+          cd "$REAL_PATH"
+
+          # Generate packaging configs on the fly
           cat << 'EOF' > pyproject.toml
 [build-system]
 requires = ["setuptools", "wheel"]
@@ -39,8 +43,8 @@ dependencies = []
 EOF
 
           python -m pip install --upgrade pip setuptools wheel build
+          python -m pip install .
           python -m build --no-isolation
 
-      - name: Publish to PyPI via Trusted Publishing
+      - name: 4. Publish to PyPI via Trusted Publishing
         uses: pypa/gh-action-pypi-publish@release/v1
-        # No password secrets needed; uses the OIDC permission block above!
