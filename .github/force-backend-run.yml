@@ -9,9 +9,13 @@ on:
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
+    # 👇 ADD THESE TWO LINES TO ENABLE OIDC TOKEN EXCHANGE
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
-      - name: 1. Clone Codebase
+      - name: Checkout Source Code
         uses: actions/checkout@v4
 
       - name: 2. Set Up Python
