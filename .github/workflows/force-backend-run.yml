@@ -9,13 +9,12 @@ jobs:
   build_and_publish:
     runs-on: ubuntu-latest
     
-    # If your Trusted Publisher uses an environment, leave this. 
-    # If your Trusted Publisher has "Environment: None", DELETE this line!
+    # 🔐 Match this to your PyPI Environment name (usually 'pypi', 'release', or leave blank if not used)
     environment: pypi 
     
     permissions:
-      id-token: write    
-      contents: read     
+      id-token: write    # Required for Trusted Publishing OIDC token
+      contents: read     # Required to clone your codebase
 
     steps:
       - name: 1. Clone Codebase
@@ -31,14 +30,14 @@ jobs:
           REAL_PATH=$(find . -maxdepth 3 -type d -name "complex-translator" -print -quit)
           cd "$REAL_PATH"
 
-          # ⚠️ CHANGE "complex-translator" BELOW TO YOUR EXACT PYPI REGISTERED PROJECT NAME
+          # Generate packaging configs on the fly
           cat << 'EOF' > pyproject.toml
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "complex-translator"  # 👈 Edit this name to match PyPI perfectly!
+name = "complex-translator"
 version = "0.1.0"
 dependencies = []
 EOF
@@ -47,16 +46,10 @@ EOF
           python -m pip install .
           python -m build --no-isolation
 
-          # Relocate packages to the main workspace root for PyPI container access
-          mkdir -p "$GITHUB_WORKSPACE/dist"
-          mv dist/* "$GITHUB_WORKSPACE/dist/"
-          
-          echo "📦 Current built packages ready for upload:"
-          ls -l "$GITHUB_WORKSPACE/dist"
-
-      - name: 4. Publish to PyPI via Trusted Publishing
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: dist/
-          # 🔍 Turning on debug printing to catch the exact claim mismatch inside the container logs
-          print-hash: true
+        - name: 4. Publish to PyPI via Trusted Publishing
+          uses: pypa/gh-action-pypi-publish@release/v1
+          with:
+            packages-dir: dist/
+            print-hash: true
+            # ⚠️ Forces the container to provide verbose logs if it fails again
+            verbose: true 
