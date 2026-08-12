@@ -1,37 +1,26 @@
-name: Production Backend Pipeline
+name: Python Workflow
 
 on:
   push:
-    branches: [main, master]
-    tags: ['v*', '[0-9]*']
-  workflow_dispatch: # Allows manual triggering from the UI or CLI
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  build_and_publish:
+  build-and-run:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
+
     steps:
-    - name: Check out repository code
-      uses: actions/checkout@v4
+      - name: Checkout repository code
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-    - name: Install dependencies
-      run: python -m pip install build wheel pytest
+      - name: Install dependencies
+        run: python -m pip install build wheel pytest
 
-    - name: Monolithic Environment Assembly and Package Build
-      # Tell GitHub to look inside the subfolder where pyproject.toml actually sits!
-      working-directory: ./src/complex-translator
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install build setuptools wheel pytest
-        python -m pip install .
-        python -m pytest
-        python -m build --no-isolation
-
-    - name: Publish Distribution Packages to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Run script
+        run: python main.py
