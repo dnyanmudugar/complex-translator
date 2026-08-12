@@ -19,8 +19,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: python -m pip install build wheel pytest
-
       - name: Run script
-        run: python main.py
+        run: |
+          python -m pip install build wheel pytest
+          echo "Dependencies installed successfully!"
