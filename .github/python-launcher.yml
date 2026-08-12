@@ -1,0 +1,77 @@
+name: 🚀 Interactive Python Project Launcher
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_path:
+        description: 'Folder path of your Python project'
+        required: true
+        default: './src/complex-translator'
+      script_name:
+        description: 'The Python file you want to execute'
+        required: true
+        default: 'main.py'
+      run_tests:
+        description: 'Run pytest before executing?'
+        type: boolean
+        required: true
+        default: false
+
+jobs:
+  launch-python-app:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Clone Codebase
+        uses: actions/checkout@v4
+
+      - name: 2. Set Up Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 3. Execute Selected Program Path
+        run: |
+          # Navigate dynamically based on your manual input
+          TARGET_PATH="${{ github.event.inputs.project_path }}"
+          SCRIPT_NAME="${{ github.event.inputs.script_name }}"
+          
+          echo "📂 Shifting workspace to: $TARGET_PATH"
+          cd "$TARGET_PATH" || { echo "❌ ERROR: Path '$TARGET_PATH' not found!"; exit 1; }
+
+          # Auto-generate a dummy pyproject.toml if missing to satisfy strict builders
+          if [ ! -f "pyproject.toml" ] && [ ! -f "setup.py" ]; then
+            echo "⚙️ Creating automated packaging configurations..."
+            cat << 'EOF' > pyproject.toml
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dynamic-app-run"
+version = "0.1.0"
+dependencies = []
+EOF
+          fi
+
+          # Update system installer tools
+          python -m pip install --upgrade pip setuptools wheel build pytest
+
+          # Conditional test run block
+          if [ "${{ github.event.inputs.run_tests }}" = "true" ]; then
+            echo "🧪 Running test suites..."
+            python -m pytest || echo "⚠️ Tests failed, but continuing program..."
+          fi
+
+          # Install and run your specific target program
+          python -m pip install .
+          
+          echo "🏃 Launching: python $SCRIPT_NAME"
+          if [ -f "$SCRIPT_NAME" ]; then
+            python "$SCRIPT_NAME"
+          else
+            echo "❌ ERROR: Target script file '$SCRIPT_NAME' does not exist inside $TARGET_PATH!"
+            echo "Available files in this folder:"
+            ls -l
+            exit 1
+          fi
