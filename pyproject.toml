@@ -12,7 +12,7 @@ authors = [
     {name = "Dnyan Mudugar", email = "dnyan.mudugar@yahoo.com"},
 ]
 dependencies = [
-    "transformers",
+    "tokenizer",
     "torch",
     "pandas",
     "requests",

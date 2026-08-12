@@ -33,5 +33,8 @@ jobs:
         # 2. Run your tests directly without installing the directory
         python -m pytest
 
+    - name: Build Distribution Packages
+      run: python -m build ./complex-translator
+
     - name: Publish Distribution Packages to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
