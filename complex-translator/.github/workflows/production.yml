@@ -1,0 +1,13 @@
+name: Test Pipeline Connection
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  ping_test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run Hello World
+      run: echo "The pipeline is working perfectly!"
