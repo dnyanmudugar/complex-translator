@@ -9,6 +9,7 @@ jobs:
   build_and_publish:
     runs-on: ubuntu-latest
     
+    # 🔐 Match this to your PyPI Environment name (usually 'pypi', 'release', or leave blank if not used)
     environment: pypi 
     
     permissions:
@@ -27,10 +28,9 @@ jobs:
       - name: 3. Dynamic Directory Mapping and Build
         run: |
           REAL_PATH=$(find . -maxdepth 3 -type d -name "complex-translator" -print -quit)
-          echo "📍 Project found at: $REAL_PATH"
           cd "$REAL_PATH"
 
-          # ⚙️ Inject configuration files locally inside the subfolder
+          # Generate packaging configs on the fly
           cat << 'EOF' > pyproject.toml
 [build-system]
 requires = ["setuptools", "wheel"]
@@ -42,20 +42,9 @@ version = "0.1.0"
 dependencies = []
 EOF
 
-          # 🛠️ Upgrade core dependencies
           python -m pip install --upgrade pip setuptools wheel build
           python -m pip install .
-          
-          # 📦 Compile the package inside the subfolder
           python -m build --no-isolation
-
-          # 🚚 CRITICAL STEP: Relocate the built files to the main workspace root
-          echo "Moving artifacts out of isolation..."
-          mkdir -p "$GITHUB_WORKSPACE/dist"
-          mv dist/* "$GITHUB_WORKSPACE/dist/"
 
       - name: 4. Publish to PyPI via Trusted Publishing
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          # Tells the PyPI container exactly where the files were relocated
-          packages-dir: dist/
