@@ -25,7 +25,7 @@ jobs:
 
     - name: Monolithic Environment Assembly and Run Tests
       run: |
-        cd ./src/complex-translator
+        cd ./complex-translator
         
         # 1. Upgrade pip and install testing framework
         python -m pip install --upgrade pip pytest
