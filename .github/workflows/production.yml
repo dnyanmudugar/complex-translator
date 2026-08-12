@@ -24,12 +24,17 @@ jobs:
       run: python -m pip install build wheel pytest
 
     - name: Monolithic Environment Assembly and Package Build
-      # Tell GitHub to look inside the subfolder where pyproject.toml actually sits!
-      working-directory: ./src/complex-translator
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install build setuptools wheel pytest
-        python -m pip install requests
+        # Explicitly move into the subfolder first
+        cd ./src/complex-translator
+        
+        # Upgrade pip and core packaging tools
+        python -m pip install --upgrade pip setuptools wheel build pytest
+        
+        # Install the local directory package safely
+        python -m pip install .
+        
+        # Run tests and trigger the monolithic build
         python -m pytest
         python -m build --no-isolation
 
