@@ -8,7 +8,7 @@ on:
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
-    # 🔐 CRITICAL: Allows PyPI to cryptographically verify your runner identity
+    environment: pypi
     permissions:
       id-token: write
       contents: read
