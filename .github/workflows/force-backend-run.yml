@@ -9,12 +9,13 @@ jobs:
   build_and_publish:
     runs-on: ubuntu-latest
     
-    # 🔐 Match this to your PyPI Environment name (usually 'pypi', 'release', or leave blank if not used)
+    # ⚠️ Keep this only if you created a 'pypi' environment in GitHub Settings.
+    # Otherwise, delete or comment out this line!
     environment: pypi 
     
     permissions:
-      id-token: write    # Required for Trusted Publishing OIDC token
-      contents: read     # Required to clone your codebase
+      id-token: write    
+      contents: read     
 
     steps:
       - name: 1. Clone Codebase
@@ -25,12 +26,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 3. Dynamic Directory Mapping and Build
+      - name: 3. Isolate Path and Build Package
         run: |
           REAL_PATH=$(find . -maxdepth 3 -type d -name "complex-translator" -print -quit)
           cd "$REAL_PATH"
 
-          # Generate packaging configs on the fly
           cat << 'EOF' > pyproject.toml
 [build-system]
 requires = ["setuptools", "wheel"]
@@ -46,10 +46,13 @@ EOF
           python -m pip install .
           python -m build --no-isolation
 
-        - name: 4. Publish to PyPI via Trusted Publishing
-          uses: pypa/gh-action-pypi-publish@release/v1
-          with:
-            packages-dir: dist/
-            print-hash: true
-            # ⚠️ Forces the container to provide verbose logs if it fails again
-            verbose: true 
+          # Export package data clean to the root workspace
+          mkdir -p "$GITHUB_WORKSPACE/dist"
+          mv dist/* "$GITHUB_WORKSPACE/dist/"
+
+      - name: 4. Publish to PyPI via Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          # 🔍 THIS CLEARS THE HIDDEN DOCKER ERROR BY FORCING FULL LOG OUTPUT
+          verbose: true 
