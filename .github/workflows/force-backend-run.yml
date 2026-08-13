@@ -9,8 +9,6 @@ jobs:
   build_and_publish:
     runs-on: ubuntu-latest
     
-    # Do not add an "environment:" line here since it was left blank on PyPI
-    
     permissions:
       id-token: write    # Grants OIDC permissions to exchange token
       contents: read     # Grants checkout permissions
@@ -26,9 +24,21 @@ jobs:
 
       - name: 3. Isolate Path and Build Package
         run: |
-          REAL_PATH=$(find . -maxdepth 3 -type d -name "complex-translator" -print -quit)
+          echo "🔍 Searching for your project folder layout..."
+          # Case-insensitive find to capture variations like 'Complex-Translator' or 'complex-translator'
+          REAL_PATH=$(find . -maxdepth 4 -type d -iname "complex-translator" -print -quit)
+          
+          if [ -z "$REAL_PATH" ]; then
+            echo "❌ CRITICAL: Could not find 'complex-translator' anywhere in this workspace."
+            echo "Printing current directory tree layout to help you verify:"
+            ls -R
+            exit 1
+          fi
+          
+          echo "✅ Target path successfully discovered at: $REAL_PATH"
           cd "$REAL_PATH"
 
+          # Programmatically generate packaging configurations locally inside the target folder
           cat << 'EOF' > pyproject.toml
 [build-system]
 requires = ["setuptools", "wheel"]
@@ -40,11 +50,13 @@ version = "0.1.0"
 dependencies = []
 EOF
 
+          echo "🛠️ Installing environment build core toolsets..."
           python -m pip install --upgrade pip setuptools wheel build
           python -m pip install .
           python -m build --no-isolation
 
           # Relocate packages to the main workspace root for the PyPI action
+          echo "🚚 Transferring built packages to target workspace distribution folders..."
           mkdir -p "$GITHUB_WORKSPACE/dist"
           mv dist/* "$GITHUB_WORKSPACE/dist/"
 
@@ -52,4 +64,4 @@ EOF
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/
-          verbose: true  # Forces full server log output if an issue arises
+          verbose: true
