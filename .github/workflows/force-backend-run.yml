@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     
     permissions:
-      id-token: write    # Crucial for OIDC mint-token exchanges
-      contents: read     
+      id-token: write    # Grants OIDC permissions to exchange token
+      contents: read     # Grants checkout permissions
 
     steps:
       - name: 1. Clone Codebase
@@ -38,16 +38,32 @@ version = "0.1.0"
 dependencies = []
 EOF
 
-          python -m pip install --upgrade pip setuptools wheel build
+          python -m pip install --upgrade pip setuptools wheel build twine
           python -m pip install .
           python -m build --no-isolation
 
-          # Relocate packages safely out of path isolation
+          # Relocate packages to the main workspace root
           mkdir -p "$GITHUB_WORKSPACE/dist"
           mv dist/* "$GITHUB_WORKSPACE/dist/"
 
-      - name: 4. Publish to PyPI via Trusted Publishing
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: dist/
-          verbose: true
+      # 🚀 FIX: Uses a standard Python library tool instead of a hidden Docker action
+      - name: 4. Publish to PyPI via Twine CLI Tool
+        run: |
+          # Fetch the short-lived security token explicitly via GitHub Actions core API
+          ACTIONS_ID_TOKEN_REQUEST_URL="$ACTIONS_ID_TOKEN_REQUEST_URL"
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN="$ACTIONS_ID_TOKEN_REQUEST_TOKEN"
+          
+          echo "🔐 Requesting token authority from OIDC..."
+          OIDC_TOKEN=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=pypi" | jq -r '.value')
+          
+          if [ -z "$OIDC_TOKEN" ] || [ "$OIDC_TOKEN" == "null" ]; then
+            echo "❌ Failed to retrieve authentication claim from GitHub!"
+            exit 1
+          fi
+
+          echo "📦 Launching transparent upload program..."
+          python -m twine upload \
+            -u __token__ \
+            -p "$OIDC_TOKEN" \
+            "$GITHUB_WORKSPACE/dist/*"
