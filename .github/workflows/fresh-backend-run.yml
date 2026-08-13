@@ -23,23 +23,22 @@ jobs:
 
       - name: 3. Isolate Path and Build Package
         run: |
-          echo "🔍 Searching for your project folder path..."
+          echo "🔍 Hunting for 'complex-translator' folder anywhere in the repository..."
           
-          # 1. Determine the true path and save it to a variable
-          if [ -d "./complex-translator" ]; then
-            TARGET_PATH="./complex-translator"
-          elif [ -d "./src/complex-translator" ]; then
-            TARGET_PATH="./src/complex-translator"
-          else
-            echo "❌ CRITICAL error: 'complex-translator' folder not found."
+          # Find the real path dynamically, ignoring case sensitivity
+          REAL_PATH=$(find . -maxdepth 4 -type d -iname "complex-translator" -print -quit)
+          
+          if [ -z "$REAL_PATH" ]; then
+            echo "❌ CRITICAL: Could not find any folder named 'complex-translator'."
+            echo "=== CURRENT REPOSITORY MAP ==="
             ls -R
             exit 1
           fi
+          
+          echo "✅ Target path successfully discovered at: $REAL_PATH"
 
-          echo "✅ Target path verified: $TARGET_PATH"
-
-          # 2. Inject the pyproject.toml directly into that target path
-          cat << 'EOF' > "$TARGET_PATH/pyproject.toml"
+          # Inject the pyproject.toml directly into the discovered path
+          cat << 'EOF' > "$REAL_PATH/pyproject.toml"
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -49,15 +48,15 @@ name = "complex-translator"
 version = "0.1.0"
 dependencies = []
 EOF
-          echo "✅ pyproject.toml generated inside $TARGET_PATH"
+          echo "✅ pyproject.toml generated inside $REAL_PATH"
 
-          # 3. Upgrade setup dependencies
+          # Upgrade setup dependencies
           python -m pip install --upgrade pip setuptools wheel build
 
-          # 4. Explicitly tell the build tool to compile that specific folder path
-          python -m build "$TARGET_PATH" --no-isolation
+          # Build the discovered path explicitly
+          python -m build "$REAL_PATH" --no-isolation
 
-          # 5. Relocate build distributions out of the target folder to workspace root
+          # Relocate build distributions to workspace root for PyPI
           mkdir -p "$GITHUB_WORKSPACE/dist"
-          mv "$TARGET_PATH/dist"/* "$GITHUB_WORKSPACE/dist/"
+          mv "$REAL_PATH/dist"/* "$GITHUB_WORKSPACE/dist/"
           echo "🚚 Build artifacts relocated to global workspace distribution root."
