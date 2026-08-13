@@ -8,8 +8,9 @@ on:
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
+    
     permissions:
-      id-token: write    
+      id-token: write    # Crucial for OIDC mint-token exchanges
       contents: read     
 
     steps:
@@ -41,7 +42,7 @@ EOF
           python -m pip install .
           python -m build --no-isolation
 
-          # Export package data clean to the root workspace
+          # Relocate packages safely out of path isolation
           mkdir -p "$GITHUB_WORKSPACE/dist"
           mv dist/* "$GITHUB_WORKSPACE/dist/"
 
@@ -49,5 +50,4 @@ EOF
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/
-          # 🔍 THIS CLEARS THE HIDDEN DOCKER ERROR BY FORCING FULL LOG OUTPUT
-          verbose: true 
+          verbose: true
