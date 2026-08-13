@@ -24,21 +24,20 @@ jobs:
 
       - name: 3. Isolate Path and Build Package
         run: |
-          echo "🔍 Searching for your project folder layout..."
-          # Case-insensitive find to capture variations like 'Complex-Translator' or 'complex-translator'
-          REAL_PATH=$(find . -maxdepth 4 -type d -iname "complex-translator" -print -quit)
-          
-          if [ -z "$REAL_PATH" ]; then
-            echo "❌ CRITICAL: Could not find 'complex-translator' anywhere in this workspace."
-            echo "Printing current directory tree layout to help you verify:"
+          # 1. Check if the directory exists, and move inside it
+          if [ -d "./complex-translator" ]; then
+            cd ./complex-translator
+          elif [ -d "./src/complex-translator" ]; then
+            cd ./src/complex-translator
+          else
+            echo "❌ CRITICAL: Could not find complex-translator folder."
             ls -R
             exit 1
           fi
-          
-          echo "✅ Target path successfully discovered at: $REAL_PATH"
-          cd "$REAL_PATH"
 
-          # Programmatically generate packaging configurations locally inside the target folder
+          echo "📍 Current working directory confirmed: $(pwd)"
+
+          # 2. Inject the pyproject.toml right here inside the folder
           cat << 'EOF' > pyproject.toml
 [build-system]
 requires = ["setuptools", "wheel"]
@@ -49,19 +48,14 @@ name = "complex-translator"
 version = "0.1.0"
 dependencies = []
 EOF
+          echo "✅ pyproject.toml generated inside $(pwd)"
 
-          echo "🛠️ Installing environment build core toolsets..."
+          # 3. Upgrade your tools locally
           python -m pip install --upgrade pip setuptools wheel build
-          python -m pip install .
+
+          # 4. Build the project using a dot '.' instead of a path
           python -m build --no-isolation
 
-          # Relocate packages to the main workspace root for the PyPI action
-          echo "🚚 Transferring built packages to target workspace distribution folders..."
+          # 5. Move the built packages to the root workspace for PyPI
           mkdir -p "$GITHUB_WORKSPACE/dist"
           mv dist/* "$GITHUB_WORKSPACE/dist/"
-
-      - name: 4. Publish Distribution Packages to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: dist/
-          verbose: true
