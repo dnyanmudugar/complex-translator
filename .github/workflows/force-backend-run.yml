@@ -8,11 +8,6 @@ on:
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
-    
-    # ⚠️ Keep this only if you created a 'pypi' environment in GitHub Settings.
-    # Otherwise, delete or comment out this line!
-    environment: pypi 
-    
     permissions:
       id-token: write    
       contents: read     
