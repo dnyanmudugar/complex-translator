@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     
     permissions:
-      id-token: write    
-      contents: read     
+      id-token: write    # Required for Trusted Publishing OIDC token authentication
+      contents: read     # Required to checkout the source code
 
     steps:
       - name: 1. Clone Codebase
@@ -22,21 +22,23 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 3. Isolate Path and Build Package
+      - name: 3. Dynamic Path Discovery and Hermetic Assembly
         run: |
-          echo "?? Hunting for your project folder layout..."
+          echo "🔍 Commencing systemic repository scan for complex-translator workspace..."
+          
+          # Find the actual path dynamically, bypassing upper/lowercase differences
           REAL_PATH=$(find . -maxdepth 4 -type d -iname "complex-translator" -print -quit)
           
           if [ -z "$REAL_PATH" ]; then
-            echo "? CRITICAL: Could not find any folder named 'complex-translator'."
-            echo "=== CURRENT REPOSITORY MAP ==="
+            echo "❌ CRITICAL: Target subfolder 'complex-translator' could not be found!"
+            echo "=== VISUALIZING WORKSPACE MAP ==="
             ls -R
             exit 1
           fi
           
-          echo "? Target path successfully discovered at: $REAL_PATH"
+          echo "✅ Discovered active folder target at: $REAL_PATH"
 
-          # Programmatically generate packaging configurations locally inside the target folder
+          # Programmatically generate packaging configurations locally inside the discovered path
           cat << 'EOF' > "$REAL_PATH/pyproject.toml"
 [build-system]
 requires = ["setuptools", "wheel"]
@@ -47,13 +49,18 @@ name = "complex-translator"
 version = "0.1.0"
 dependencies = []
 EOF
-          echo "? pyproject.toml generated inside $REAL_PATH"
+          echo "✅ Critical packaging architecture compiled inside target destination directory."
 
+          # Bootstrap required compilation tools
           python -m pip install --upgrade pip setuptools wheel build
+
+          # Compile the discovered directory dynamically (No hardcoded paths)
           python -m build "$REAL_PATH" --no-isolation
 
+          # Relocate packages to the main workspace root for the PyPI upload container
           mkdir -p "$GITHUB_WORKSPACE/dist"
           mv "$REAL_PATH/dist"/* "$GITHUB_WORKSPACE/dist/"
+          echo "🚚 Build artifacts routed out of isolation to global workspace distribution root."
 
       - name: 4. Publish Distribution Packages to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
