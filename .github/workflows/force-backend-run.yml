@@ -9,9 +9,11 @@ jobs:
   build_and_publish:
     runs-on: ubuntu-latest
     
+    # 🔐 DO NOT add an "environment:" line here if it's blank on PyPI!
+    
     permissions:
-      id-token: write    # Grants OIDC permissions to exchange token
-      contents: read     # Grants checkout permissions
+      id-token: write    # Required for Trusted Publishing OIDC token exchange
+      contents: read     # Required to checkout code
 
     steps:
       - name: 1. Clone Codebase
@@ -24,9 +26,11 @@ jobs:
 
       - name: 3. Isolate Path and Build Package
         run: |
+          # Dynamically map and move into the subfolder path
           REAL_PATH=$(find . -maxdepth 3 -type d -name "complex-translator" -print -quit)
           cd "$REAL_PATH"
 
+          # Inject required packaging configurations locally
           cat << 'EOF' > pyproject.toml
 [build-system]
 requires = ["setuptools", "wheel"]
@@ -38,32 +42,17 @@ version = "0.1.0"
 dependencies = []
 EOF
 
-          python -m pip install --upgrade pip setuptools wheel build twine
+          python -m pip install --upgrade pip setuptools wheel build
           python -m pip install .
           python -m build --no-isolation
 
-          # Relocate packages to the main workspace root
+          # Relocate packages to the main workspace root for the PyPI Docker action
           mkdir -p "$GITHUB_WORKSPACE/dist"
           mv dist/* "$GITHUB_WORKSPACE/dist/"
 
-      # 🚀 FIX: Uses a standard Python library tool instead of a hidden Docker action
-      - name: 4. Publish to PyPI via Twine CLI Tool
-        run: |
-          # Fetch the short-lived security token explicitly via GitHub Actions core API
-          ACTIONS_ID_TOKEN_REQUEST_URL="$ACTIONS_ID_TOKEN_REQUEST_URL"
-          ACTIONS_ID_TOKEN_REQUEST_TOKEN="$ACTIONS_ID_TOKEN_REQUEST_TOKEN"
-          
-          echo "🔐 Requesting token authority from OIDC..."
-          OIDC_TOKEN=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=pypi" | jq -r '.value')
-          
-          if [ -z "$OIDC_TOKEN" ] || [ "$OIDC_TOKEN" == "null" ]; then
-            echo "❌ Failed to retrieve authentication claim from GitHub!"
-            exit 1
-          fi
-
-          echo "📦 Launching transparent upload program..."
-          python -m twine upload \
-            -u __token__ \
-            -p "$OIDC_TOKEN" \
-            "$GITHUB_WORKSPACE/dist/*"
+      - name: 4. Publish to PyPI via Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          # Turning on verbose logs ensures we see any underlying data mismatches
+          verbose: true 
