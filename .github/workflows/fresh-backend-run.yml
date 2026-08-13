@@ -8,6 +8,7 @@ on:
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
+    
     permissions:
       id-token: write    
       contents: read     
@@ -23,21 +24,19 @@ jobs:
 
       - name: 3. Isolate Path and Build Package
         run: |
-          echo "🔍 Hunting for 'complex-translator' folder anywhere in the repository..."
-          
-          # Find the real path dynamically, ignoring case sensitivity
+          echo "?? Hunting for your project folder layout..."
           REAL_PATH=$(find . -maxdepth 4 -type d -iname "complex-translator" -print -quit)
           
           if [ -z "$REAL_PATH" ]; then
-            echo "❌ CRITICAL: Could not find any folder named 'complex-translator'."
+            echo "? CRITICAL: Could not find any folder named 'complex-translator'."
             echo "=== CURRENT REPOSITORY MAP ==="
             ls -R
             exit 1
           fi
           
-          echo "✅ Target path successfully discovered at: $REAL_PATH"
+          echo "? Target path successfully discovered at: $REAL_PATH"
 
-          # Inject the pyproject.toml directly into the discovered path
+          # Programmatically generate packaging configurations locally inside the target folder
           cat << 'EOF' > "$REAL_PATH/pyproject.toml"
 [build-system]
 requires = ["setuptools", "wheel"]
@@ -48,15 +47,16 @@ name = "complex-translator"
 version = "0.1.0"
 dependencies = []
 EOF
-          echo "✅ pyproject.toml generated inside $REAL_PATH"
+          echo "? pyproject.toml generated inside $REAL_PATH"
 
-          # Upgrade setup dependencies
           python -m pip install --upgrade pip setuptools wheel build
-
-          # Build the discovered path explicitly
           python -m build "$REAL_PATH" --no-isolation
 
-          # Relocate build distributions to workspace root for PyPI
           mkdir -p "$GITHUB_WORKSPACE/dist"
           mv "$REAL_PATH/dist"/* "$GITHUB_WORKSPACE/dist/"
-          echo "🚚 Build artifacts relocated to global workspace distribution root."
+
+      - name: 4. Publish Distribution Packages to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          verbose: true
