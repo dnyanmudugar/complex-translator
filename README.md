@@ -16,9 +16,6 @@ A lightweight, fully offline text translation package for Python built on top of
 You can install this package locally using `pip`:
 
 ```bash
-# Navigate to the project root directory
-cd my_translator_project
-
 # Install the package
 pip install complex-translator
 ```
@@ -28,14 +25,13 @@ pip install complex-translator
 Here is how to quickly translate text from English to Spanish using the package:
 
 ```python
-from complex_translator import LocalTranslator
+from complex_translator import translate
 
 # Initialize the translator (defaults to English 'en' to Spanish 'es')
-translator = LocalTranslator(source_lang="en", target_lang="es")
+translation = translate(text=text, source_lang="en", target_lang="es")
 
 # Translate text
 text = "Hello, welcome to my custom offline translator!"
-translation = translator.translate(text)
 
 print(translation)
 # Output: Hola, bienvenido a mi traductor sin conexión personalizado!
@@ -46,8 +42,7 @@ print(translation)
 To change languages, pass different language codes during initialization (e.g., English `en` to French `fr`):
 
 ```python
-translator = LocalTranslator(source_lang="en", target_lang="fr")
-print(translator.translate("Good morning"))
+translation = translate(text=text, source_lang="en", target_lang="fr")
 ```
 
 *Note: The very first time you use a specific language pair, the package will download a small model (~300MB). Subsequent runs will be completely instant.*
