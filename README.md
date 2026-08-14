@@ -27,8 +27,11 @@ Here is how to quickly translate text from English to Spanish using the package:
 ```python
 from complex_translator import translate
 
+src_lang = "en"
+tgt_lang = "es"
+
 # Initialize the translator (defaults to English 'en' to Spanish 'es')
-translation = translate(text=text, source_lang="en", target_lang="es")
+translation = translate(text=text, src_lang, tgt_lang)
 
 # Translate text
 text = "Hello, welcome to my custom offline translator!"
@@ -42,7 +45,10 @@ print(translation)
 To change languages, pass different language codes during initialization (e.g., English `en` to French `fr`):
 
 ```python
-translation = translate(text=text, source_lang="en", target_lang="fr")
+src_lang = "en"
+tgt_lang = "fr"
+
+translation = translate(text=text, src_lang, tgt_lang)
 ```
 
 *Note: The very first time you use a specific language pair, the package will download a small model (~300MB). Subsequent runs will be completely instant.*
