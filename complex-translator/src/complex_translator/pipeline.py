@@ -5,7 +5,7 @@ import random
 import csv
 import os
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+from device import device
 
 SOS_token = 0
 EOS_token = 1
@@ -36,7 +36,7 @@ def sentence_to_tensor(vocab, sentence):
         if word in vocab.word2index:
             indexes.append(vocab.word2index[word])
     indexes.append(EOS_token)
-    return torch.tensor(indexes, dtype=torch.long, device=DEVICE).unsqueeze(0)
+    return torch.tensor(indexes, dtype=torch.long, device=device).unsqueeze(0)
 
 class EncoderRNN(nn.Module):
     def __init__(self, input_size, hidden_size):
@@ -69,7 +69,7 @@ class AttentionDecoderRNN(nn.Module):
     def forward(self, encoder_hidden, encoder_outputs, target_tensor=None, max_len=20, teacher_forcing_ratio=0.5):
         batch_size = encoder_hidden.size(1) if encoder_hidden.dim() > 2 else encoder_hidden.size(0)
         
-        decoder_input = torch.empty(batch_size, 1, dtype=torch.long, device=DEVICE).fill_(SOS_token)
+        decoder_input = torch.empty(batch_size, 1, dtype=torch.long, device=device).fill_(SOS_token)
         decoder_hidden = encoder_hidden
         decoder_outputs_list = []
 
@@ -79,7 +79,7 @@ class AttentionDecoderRNN(nn.Module):
         # Pad encoder outputs to match self.max_length if they are shorter
         current_seq_len = encoder_outputs.size(1)
         if current_seq_len < self.max_length:
-            padding = torch.zeros(batch_size, self.max_length - current_seq_len, self.hidden_size, device=DEVICE)
+            padding = torch.zeros(batch_size, self.max_length - current_seq_len, self.hidden_size, device=device)
             encoder_outputs = torch.cat((encoder_outputs, padding), dim=1)
         elif current_seq_len > self.max_length:
             encoder_outputs = encoder_outputs[:, :self.max_length, :]
@@ -107,17 +107,17 @@ class AttentionDecoderRNN(nn.Module):
             decoder_outputs_list.append(top_features)
 
             if use_teacher_forcing:
-                decoder_input = target_tensor[:, i].unsqueeze(1).to(dtype=torch.long, device=DEVICE)
+                decoder_input = target_tensor[:, i].unsqueeze(1).to(dtype=torch.long, device=device)
             else:
                 _, topi = top_features.topk(1)
-                decoder_input = topi.squeeze(-1).detach().to(dtype=torch.long, device=DEVICE)
+                decoder_input = topi.squeeze(-1).detach().to(dtype=torch.long, device=device)
 
         final_outputs = torch.cat(decoder_outputs_list, dim=1)
         return final_outputs, decoder_hidden, None
 
 def train_multilingual_pipeline(dataset, vocab, max_vocab_size, epochs=1500, hidden_size=64):
-    encoder = EncoderRNN(vocab.num_words, hidden_size).to(DEVICE)
-    decoder = AttentionDecoderRNN(hidden_size, max_vocab_size).to(DEVICE)
+    encoder = EncoderRNN(vocab.num_words, hidden_size).to(device)
+    decoder = AttentionDecoderRNN(hidden_size, max_vocab_size).to(device)
 
     enc_optimizer = optim.Adam(encoder.parameters(), lr=0.005)
     dec_optimizer = optim.Adam(decoder.parameters(), lr=0.005)
