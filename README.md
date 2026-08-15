@@ -31,7 +31,7 @@ src_lang = "en"
 tgt_lang = "es"
 
 # Initialize the translator (defaults to English 'en' to Spanish 'es')
-translation = translate(text=text, src_lang, tgt_lang)
+translation = translate(text, src_lang, tgt_lang)
 
 # Translate text
 text = "Hello, welcome to my custom offline translator!"
@@ -48,7 +48,7 @@ To change languages, pass different language codes during initialization (e.g., 
 src_lang = "en"
 tgt_lang = "fr"
 
-translation = translate(text=text, src_lang, tgt_lang)
+translation = translate(text, src_lang, tgt_lang)
 ```
 
 *Note: The very first time you use a specific language pair, the package will download a small model (~300MB). Subsequent runs will be completely instant.*
