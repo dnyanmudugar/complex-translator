@@ -56,3 +56,4 @@ translation = translate(text, src_lang, tgt_lang)
 ## License
 
 This project is licensed under the MIT License.
+
