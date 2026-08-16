@@ -303,7 +303,7 @@ class MultilingualTransformer(nn.Module):
         
         # 5. Pass through the full Transformer pipeline including padding blocks
         transformer_out = self.transformer(
-            src_emb, tgt_emb, 
+            src_emb, tgt_emb,
             tgt_mask=tgt_mask,
             src_key_padding_mask=src_padding_mask,
             tgt_key_padding_mask=tgt_padding_mask
