@@ -19,14 +19,6 @@ from device import device
 file_path = "translation_data.csv"
 json_file = "tokenizer.json"
 
-if not os.path.exists(file_path):
-    print(f"Dataset not found at {file_path}. Creating a fresh sample dataset...")
-    mock_data = {
-        "source": ["hello world", "how are you", "good morning", "see you later"],
-        "target": ["hola mundo", "como estas", "buenos dias", "hasta luego"]
-    }
-    pd.DataFrame(mock_data).to_csv(file_path, index=False)
-
 # Load your raw dataset
 df = pd.read_csv(file_path)
 
@@ -192,22 +184,6 @@ class MultilingualTokenizer:
         self.id_to_token = {int(v): str(k) for k, v in self.token_to_id.items()}
         self.vocab = set(self.token_to_id.keys())
         print(f"Loaded vocabulary size: {len(self.token_to_id)} tokens.")
-
-def translate_text(text, target_tag, model, tokenizer, device, max_len=20):
-    model.eval()
-    src_ids = torch.tensor([tokenizer.encode(text, target_tag)]).to(device)
-    tgt_ids = [tokenizer.vocab["<sos>"]]
-    
-    with torch.no_grad():
-        for _ in range(max_len):
-            tgt_tensor = torch.tensor([tgt_ids]).to(device)
-            output = model(src_ids, tgt_tensor)
-            next_token = output[0, -1, :].argmax().item()
-            tgt_ids.append(next_token)
-            if next_token == tokenizer.vocab["<eos>"]:
-                break
-                
-    return tokenizer.decode(tgt_ids)
 
 def translate_text(text, target_tag, model, tokenizer, runtime_device, max_len=20):
     """Generates autoregressive language translations from an active structural Transformer model."""

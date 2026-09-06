@@ -1,3 +1,5 @@
+import json
+
 class Vocabulary:
     def __init__(self, pad_token="<PAD>", unk_token="<UNK>", sos_token="<SOS>", eos_token="<EOS>"):
         # 1. Initialize maps
@@ -47,7 +49,19 @@ class Vocabulary:
         for word, count in self.word_counts.items():
             if count >= min_freq:
                 self.add_word(word)
-
+    
+    def load_vocab(self, json_path):
+        """Loads a saved vocabulary layout from a JSON file."""
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        
+        # Rebuild the mappings from the saved JSON structural keys
+        self.word2idx = data["word2idx"]
+        # Convert string indices from JSON back to integers for Python
+        self.idx2word = {int(k): v for k, v in data["idx2word"].items()}
+        if "word_counts" in data:
+            self.word_counts = data["word_counts"]
+        
     def numericalize(self, sentence):
         """Converts a text string sentence into a list of integer token IDs."""
         numericalized = [self.word2idx[self.sos_token]]  # Add start token
