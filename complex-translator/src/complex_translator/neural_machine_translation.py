@@ -16,7 +16,7 @@ from model import Encoder, Decoder
 from device import device
 
 # file path imports
-file_path = "translation_data.csv"
+file_path = "translate.csv"
 json_file = "tokenizer.json"
 
 # Load your raw dataset
