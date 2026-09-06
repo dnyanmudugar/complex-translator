@@ -1,0 +1,36 @@
+source_text,target_text,lang_token
+hello,bonjour,<2fr>
+hello,hola,<2es>
+hello,hallo,<2de>
+hello,ciao,<2it>
+hello,नमस्कार,<2hi>
+how are you,comment vas tu,<2fr>
+how are you,cómo estás,<2es>
+how are you,wie geht es dir,<2de>
+how are you,come stai,<2it>
+how are you,आप कैसे हैं,<2hi>
+i am fine,je vais bien,<2fr>
+i am fine,estoy bien,<2es>
+i am fine,mir geht es gut,<2de>
+i am fine,sto bene,<2it>
+i am fine,मैं ठीक हूँ,<2hi>
+good morning,bonjour,<2fr>
+good morning,buenos días,<2es>
+good morning,guten morgen,<2de>
+good morning,buongiorno,<2it>
+good morning,सुप्रभात,<2hi>
+goodbye,au revoir,<2fr>
+goodbye,adiós,<2es>
+goodbye,auf wiedersehen,<2de>
+goodbye,arrivederci,<2it>
+goodbye,अलविदा,<2hi>
+thank you,merci,<2fr>
+thank you,gracias,<2es>
+thank you,danke,<2de>
+thank you,grazie,<2it>
+thank you,धन्यवाद,<2hi>
+welcome,bienvenido,<2fr>
+welcome,bienvenido,<2es>
+welcome,guten tag,<2de>
+welcome,buongiorno,<2it>
+welcome,स्वागत,<2hi>
