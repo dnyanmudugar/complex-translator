@@ -142,8 +142,8 @@ def train_multilingual_pipeline(dataset, vocab, max_vocab_size, epochs=1500, hid
             encoder_outputs, encoder_hidden = encoder(input_tensor)
             
             decoder_outputs, _, _ = decoder(
-                encoder_hidden=encoder_hidden, 
-                encoder_outputs=encoder_outputs, 
+                encoder_hidden=encoder_hidden,
+                encoder_outputs=encoder_outputs,
                 target_tensor=target_tensor,
                 teacher_forcing_ratio=0.5
             )
@@ -179,8 +179,8 @@ def multilingual_translation(encoder, decoder, vocab, sentence, src_lang, tgt_la
         encoder_outputs, encoder_hidden = encoder(input_tensor)
         
         decoder_outputs, _, _ = decoder(
-            encoder_hidden=encoder_hidden, 
-            encoder_outputs=encoder_outputs, 
+            encoder_hidden=encoder_hidden,
+            encoder_outputs=encoder_outputs,
             max_len=20,
             teacher_forcing_ratio=0.0
         )
