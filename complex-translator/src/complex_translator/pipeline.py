@@ -201,13 +201,6 @@ def multilingual_translation(encoder, decoder, vocab, sentence, src_lang, tgt_la
             
         return ' '.join(decoded_words)
 
-# Define a local wrapper that locks in the models automatically
-def translate(sentence, src_lang, tgt_lang):
-    return multilingual_translation(
-        model_encoder, model_decoder, pipeline_vocab,
-        sentence, src_lang, tgt_lang, vocab_limit
-    )
-
 if __name__ == "__main__":
     # 1. Path to your CSV file
     csv_file_path = "translate.csv"  # Update this to your actual file path
@@ -251,6 +244,13 @@ if __name__ == "__main__":
     )
     
     print("\nTraining complete! Executing test translation...")
+    
+    # Define a local wrapper that locks in the models automatically
+    def translate(sentence, src_lang, tgt_lang):
+        return multilingual_translation(
+            model_encoder, model_decoder, pipeline_vocab,
+            sentence, src_lang, tgt_lang, vocab_limit
+        )
 
     # 5. Run a test translation from your dataset
     test_sentence = "the cat sleeps"
