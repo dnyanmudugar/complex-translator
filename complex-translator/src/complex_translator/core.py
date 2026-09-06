@@ -4,8 +4,8 @@ import pandas as pd
 import torch
 import torch.nn as nn
 
-from complex_translator.device import device  
-from complex_translator.layers import EncoderRNN, AttnDecoderRNN
+from device import device
+from layers import EncoderRNN, AttnDecoderRNN
 
 class TranslationModel(nn.Module):
     """
