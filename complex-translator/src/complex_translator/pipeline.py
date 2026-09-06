@@ -202,14 +202,14 @@ def multilingual_translation(encoder, decoder, vocab, sentence, src_lang, tgt_la
         return ' '.join(decoded_words)
 
 if __name__ == "__main__":
-    # 1. Path to your CSV file
+    # Path to your CSV file
     csv_file_path = "translate.csv"  # Update this to your actual file path
     
     # Check if the file exists before running
     if not os.path.exists(csv_file_path):
         raise FileNotFoundError(f"Could not find your CSV file at: {csv_file_path}")
 
-    # 2. Load the CSV file into our dataset list structure
+    # Load the CSV file into our dataset list structure
     dataset = []
     print(f"Loading dataset from {csv_file_path}...")
     
@@ -225,7 +225,7 @@ if __name__ == "__main__":
             
     print(f"Successfully loaded {len(dataset)} translation pairs!")
 
-    # 3. Dynamically build the vocabulary from your CSV data
+    # Dynamically build the vocabulary from your CSV data
     pipeline_vocab = MultilingualVocabulary()
     for item in dataset:
         pipeline_vocab.add_sentence(f"<{item['tgt_lang']}> {item['src_text']}")
@@ -234,7 +234,7 @@ if __name__ == "__main__":
     vocab_limit = pipeline_vocab.num_words
     print(f"Total vocabulary size: {vocab_limit} words.")
 
-    # 4. Train the network using your CSV data
+    # Train the network using your CSV data
     print("\nStarting Multilingual Attention Network Training...")
     model_encoder, model_decoder, pipeline_vocab, vocab_limit = train_multilingual_pipeline(
         dataset=dataset,
@@ -245,7 +245,14 @@ if __name__ == "__main__":
     
     print("\nTraining complete! Executing test translation...")
     
-    # 5. Run a test translation from your dataset
+    # Define a local wrapper that locks in the models automatically
+    def translate(sentence, src_lang, tgt_lang):
+        return multilingual_translation(
+            model_encoder, model_decoder, pipeline_vocab,
+            sentence, src_lang, tgt_lang, vocab_limit
+        )
+
+    # Run a test translation from your dataset
     test_sentence = "the cat sleeps"
     res = translate(
         sentence=test_sentence,
