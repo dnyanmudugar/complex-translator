@@ -245,13 +245,6 @@ if __name__ == "__main__":
     
     print("\nTraining complete! Executing test translation...")
     
-    # Define a local wrapper that locks in the models automatically
-    def translate(sentence, src_lang, tgt_lang):
-        return multilingual_translation(
-            model_encoder, model_decoder, pipeline_vocab,
-            sentence, src_lang, tgt_lang, vocab_limit
-        )
-
     # 5. Run a test translation from your dataset
     test_sentence = "the cat sleeps"
     res = translate(
