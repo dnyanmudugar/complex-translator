@@ -16,8 +16,16 @@ from model import Encoder, Decoder
 from device import device
 
 # file path imports
-file_path = "translate.csv"
+file_path = "translation_data.csv"
 json_file = "tokenizer.json"
+
+if not os.path.exists(file_path):
+    print(f"Dataset not found at {file_path}. Creating a fresh sample dataset...")
+    mock_data = {
+        "source": ["hello world", "how are you", "good morning", "see you later"],
+        "target": ["hola mundo", "como estas", "buenos dias", "hasta luego"]
+    }
+    pd.DataFrame(mock_data).to_csv(file_path, index=False)
 
 # Load your raw dataset
 df = pd.read_csv(file_path)
