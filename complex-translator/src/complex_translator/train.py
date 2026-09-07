@@ -29,7 +29,7 @@ class TranslationDataset(Dataset):
             torch.tensor(trg_numericalized, dtype=torch.long)
         )
 
-class TranslatorTrainer:
+class DatasetTrainer:
     def __init__(self, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion, device):
         """
         Initializes the optimization tracker for the Seq2Seq translation engine.
