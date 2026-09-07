@@ -2,7 +2,7 @@ import os
 import sys
 import torch
 
-# 2. Safe package imports
+# Safe package imports
 try:
     from vocabulary import Vocabulary
     from train import TranslationDataset, PadCollate
@@ -11,7 +11,6 @@ except ModuleNotFoundError as e:
     print(f" Import Test: FAILED. {e}")
     print("Ensure your folder names match 'neural_machine_translation' precisely.\n")
     sys.exit(1)
-
 
 def run_pipeline_test():
     print("--- STARTING NMT PIPELINE INTEGRATION TEST ---")
@@ -55,7 +54,6 @@ def run_pipeline_test():
     print(f"  -> Padded Source Tensor Shape: {src_padded.shape} (Batch Size, Sequence Length)")
     print(f"  -> Padded Target Tensor Shape: {trg_padded.shape}")
     print("\n--- ALL TESTS COMPLETED SUCCESSFULLY! YOUR PIPELINE IS SOLID ---")
-
 
 if __name__ == "__main__":
     run_pipeline_test()
