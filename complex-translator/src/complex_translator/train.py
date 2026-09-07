@@ -51,7 +51,7 @@ class TranslatorTrainer:
 
     def train_step(self, input_tensor, target_tensor, teacher_forcing_ratio=0.5):
         """
-        Runs a single forward pass, computes loss, and backpropagates gradients 
+        Runs a single forward pass, computes loss, and backpropagates gradients
         over a single source-target sentence pair.
         """
         # 1. Reset optimizer gradients
