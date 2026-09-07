@@ -1,6 +1,12 @@
+# c:\Users\jiggu\OneDrive\Documents\Python Projects\complex-translator\src\complex_translator\run.py
 import torch
-# 1. Import your custom modules from your repository package
-# (Modify these imports based on your actual library file structure)
+import sys
+import os
+
+# 1. Dynamically append the project 'src' directory to Python's system path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# Now absolute package imports will resolve correctly regardless of execution directory
 from pipeline import MultilingualVocabulary, EncoderRNN, AttentionDecoderRNN
 
 def test_pipeline():
