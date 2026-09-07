@@ -3,9 +3,6 @@ import torch
 import sys
 import os
 
-# 1. Dynamically append the project 'src' directory to Python's system path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 # Now absolute package imports will resolve correctly regardless of execution directory
 from pipeline import MultilingualVocabulary, EncoderRNN, AttentionDecoderRNN
 
