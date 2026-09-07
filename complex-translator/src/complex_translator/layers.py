@@ -42,7 +42,6 @@ class LuongAttention(nn.Module):
         context = torch.bmm(attn_weights.transpose(1, 2), encoder_outputs)
         return context, attn_weights
 
-
 class AttnDecoderRNN(nn.Module):
     """
     Generates target tokens using past target inputs, encoder context, and attention.

@@ -3,50 +3,55 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class Encoder(nn.Module):
-    def __init__(self, vocab_size, embedding_dim, hidden_dim):
+    def __init__(self, input_size, hidden_size, dropout=0.1):
         super(Encoder, self).__init__()
-        self.hidden_dim = hidden_dim
-        # Converts token IDs into dense vectors
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        # Gated Recurrent Unit (GRU) for sequence processing
-        self.gru = nn.GRU(embedding_dim, hidden_dim, batch_first=True)
+        self.hidden_size = hidden_size
+        self.embedding = nn.Embedding(input_size, hidden_size)
+        self.gru = nn.GRU(hidden_size, hidden_size, batch_first=True, bidirectional=True)
+        self.fc = nn.Linear(hidden_size * 2, hidden_size)
 
-    def forward(self, x, hidden):
-        # x shape: (batch_size, sequence_length)
-        embedded = self.embedding(x) # shape: (batch_size, seq_len, embedding_dim)
-        output, hidden = self.gru(embedded, hidden)
-        # output shape: (batch_size, seq_len, hidden_dim)
-        # hidden shape: (1, batch_size, hidden_dim)
-        return output, hidden
+    def forward(self, x):
+        embedded = self.embedding(x)
+        outputs, hidden = self.gru(embedded)
+        # Combine forward and backward states cleanly
+        hidden = torch.tanh(self.fc(torch.cat((hidden[0:1], hidden[1:2]), dim=2)))
+        return outputs, hidden
 
-    def init_hidden(self, batch_size, device):
-        # Generates a clean starting matrix of zeros for each training batch
-        return torch.zeros(1, batch_size, self.hidden_dim, device=device)
+class LuongAttentionDecoder(nn.Module):
+    def __init__(self, hidden_size, output_size, dropout=0.1):
+        super(LuongAttentionDecoder, self).__init__()
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        
+        self.embedding = nn.Embedding(output_size, hidden_size)
+        self.dropout = nn.Dropout(dropout)
+        self.gru = nn.GRU(hidden_size, hidden_size, batch_first=True)
+        
+        self.concat = nn.Linear(hidden_size * 3, hidden_size)
+        self.out = nn.Linear(hidden_size, output_size)
 
-class BahdanauAttention(nn.Module):
-    def __init__(self, hidden_dim):
-        super(BahdanauAttention, self).__init__()
-        self.W1 = nn.Linear(hidden_dim, hidden_dim)
-        self.W2 = nn.Linear(hidden_dim, hidden_dim)
-        self.V = nn.Linear(hidden_dim, 1)
-
-    def forward(self, query, values):
-        # query (decoder hidden state) shape: (1, batch_size, hidden_dim)
-        # values (encoder outputs) shape: (batch_size, seq_len, hidden_dim)
-        query_with_time_axis = query.transpose(0, 1) # shape: (batch_size, 1, hidden_dim)
-
-        # score shape: (batch_size, seq_len, 1)
-        score = self.V(torch.tanh(self.W1(query_with_time_axis) + self.W2(values)))
-
-        # attention_weights shape: (batch_size, seq_len, 1)
-        attention_weights = F.softmax(score, dim=1)
-
-        # context_vector shape: (batch_size, hidden_dim)
-        context_vector = attention_weights * values
-        context_vector = torch.sum(context_vector, dim=1)
-
-        return context_vector, attention_weights
-
+    def forward(self, input_step, hidden, encoder_outputs):
+        # input_step shape: (1, 1) representing the single current token index
+        embedded = self.embedding(input_step)
+        embedded = self.dropout(embedded)
+        
+        decoder_output, hidden = self.gru(embedded, hidden)
+        
+        src_len = encoder_outputs.size(1)
+        attn_scores = torch.zeros(1, src_len, device=input_step.device)
+        
+        # Calculate alignment energy scores 
+        for t in range(src_len):
+            attn_scores[0, t] = torch.sum(decoder_output * encoder_outputs[0, t, :self.hidden_size])
+        
+        attn_weights = F.softmax(attn_scores, dim=1).unsqueeze(1) 
+        context = torch.bmm(attn_weights, encoder_outputs) 
+        
+        concat_input = torch.cat((decoder_output, context), dim=2)
+        concat_output = torch.tanh(self.concat(concat_input))
+        
+        output = self.out(concat_output)
+        return output, hidden, attn_weights
 class Decoder(nn.Module):
     def __init__(self, vocab_size, embedding_dim, hidden_dim):
         super(Decoder, self).__init__()
