@@ -10,6 +10,51 @@ from device import device
 SOS_token = 0
 EOS_token = 1
 
+class TranslationPipeline:
+    def __init__(self, encoder, decoder, input_lang, target_lang, device, max_length=15):
+        """
+        Initializes the end-user deployment inference translation pipeline engine.
+        """
+        self.encoder = encoder
+        self.decoder = decoder
+        self.input_lang = input_lang
+        self.target_lang = target_lang
+        self.device = device
+        self.max_length = max_length
+
+    def run(self, sentence):
+        """
+        Translates a raw string input sentence into the target language.
+        """
+        self.encoder.eval()
+        self.decoder.eval()
+        
+        with torch.no_grad():
+            # Convert string tokens to indexed tensor vectors
+            input_tensor = self.input_lang.sentence_to_tensor(sentence, self.device)
+            encoder_outputs, encoder_hidden = self.encoder(input_tensor)
+
+            # Initialize decoder input token with the <SOS_TOKEN> index (1)
+            decoder_input = torch.tensor([], device=self.device)
+            decoder_hidden = encoder_hidden
+            decoded_words = []
+
+            for _ in range(self.max_length):
+                decoder_output, decoder_hidden, _ = self.decoder(
+                    decoder_input, decoder_hidden, encoder_outputs
+                )
+                _, topi = decoder_output.topk(1)
+
+                # Check for End of Sentence <EOS_TOKEN> index (2)
+                if topi.item() == 2:
+                    break
+                else:
+                    decoded_words.append(self.target_lang.index2word[topi.item()])
+
+                decoder_input = topi.squeeze().detach().view(1, 1)
+
+            return ' '.join(decoded_words)
+
 class MultilingualVocabulary:
     def __init__(self):
         self.word2index = {"<SOS>": 0, "<EOS>": 1}
