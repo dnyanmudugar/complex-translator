@@ -46,7 +46,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "complex-translator"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = []
 EOF
           echo "✅ pyproject.toml generated inside $REAL_PATH"
